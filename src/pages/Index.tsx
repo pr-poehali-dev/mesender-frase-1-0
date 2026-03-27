@@ -5,10 +5,19 @@ import ProfilePanel from '@/components/ProfilePanel';
 import SettingsPanel from '@/components/SettingsPanel';
 import SearchPanel from '@/components/SearchPanel';
 import BottomNav from '@/components/BottomNav';
+import { ChatProvider } from '@/context/ChatContext';
 
 export type Tab = 'chats' | 'search' | 'profile' | 'settings';
 
 export default function Index() {
+  return (
+    <ChatProvider>
+      <MessengerApp />
+    </ChatProvider>
+  );
+}
+
+function MessengerApp() {
   const [activeTab, setActiveTab] = useState<Tab>('chats');
   const [activeChat, setActiveChat] = useState<number | null>(1);
 
