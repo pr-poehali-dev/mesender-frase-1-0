@@ -1,18 +1,4 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-
-const LS_CHATS = 'frase_chats';
-const LS_MESSAGES = 'frase_messages';
-
-function loadLS<T>(key: string, fallback: T): T {
-  try {
-    const v = localStorage.getItem(key);
-    return v ? JSON.parse(v) : fallback;
-  } catch (e) { void e; return fallback; }
-}
-
-function saveLS(key: string, value: unknown) {
-  try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) { void e; }
-}
+import { createContext, useContext, useState, ReactNode } from 'react';
 
 export interface Message {
   id: number;
@@ -86,11 +72,8 @@ interface ChatContextValue {
 const ChatContext = createContext<ChatContextValue | null>(null);
 
 export function ChatProvider({ children }: { children: ReactNode }) {
-  const [chats, setChats] = useState<Chat[]>(() => loadLS(LS_CHATS, INIT_CHATS));
-  const [messages, setMessages] = useState<Record<number, Message[]>>(() => loadLS(LS_MESSAGES, INIT_MESSAGES));
-
-  useEffect(() => { saveLS(LS_CHATS, chats); }, [chats]);
-  useEffect(() => { saveLS(LS_MESSAGES, messages); }, [messages]);
+  const [chats, setChats] = useState<Chat[]>(INIT_CHATS);
+  const [messages, setMessages] = useState<Record<number, Message[]>>(INIT_MESSAGES);
 
   const now = () => new Date().toLocaleTimeString('ru', { hour: '2-digit', minute: '2-digit' });
 
@@ -116,7 +99,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
 
   const clearChat = (id: number) => {
     setMessages(prev => ({ ...prev, [id]: [] }));
-    setChats(prev => prev.map(c => c.id === id ? { ...c, lastMessage: '', time: now() } : c));
+    updateLastMsg(id, '');
   };
 
   const sendMessage = (chatId: number, text: string) => {
